@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "main": "prompts/chain-of-thought.js",
+  "main": "prompts/index.js",
   "scripts": {
-    "start": "node prompts/chain-of-thought.js"
+    "start": "node prompts/index.js"
   },
   "keywords": [],
   "author": "",
