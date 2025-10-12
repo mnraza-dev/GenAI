@@ -39,7 +39,7 @@ Example:
 
   const messages = [
     { role: "system", content: SYSTEM_PROMPT },
-    { role: "user", content: "Hey, can you solve 4 * 6 - 12 * 34 / 7 * 21" },
+    { role: "user", content: "write a javascript program to find a prime number as fast as possible" },
   ];
 
   while (true) {
