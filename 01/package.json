@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "main": "index.js",
+  "main": "prompts/few-shot-prompting.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node prompts/few-shot-prompting.js"
   },
   "keywords": [],
   "author": "",
