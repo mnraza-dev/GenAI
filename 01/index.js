@@ -10,18 +10,15 @@ async function main() {
     const response = await openai.chat.completions.create({
         model: "gemini-2.0-flash",
         messages: [
-            { role: "user", content: "hey, My name is MN Raza." },
-            {
-                role: "assistant",
-                content: "Okay, MN Raza. Nice to meet you! How can I help you today?",
-            }, {
-                role: "user",
-                content: "What is my name ?",
-            }
+            { 
+                role: "system", 
+                content: "You are an AI from Chaicode which is a edtech company transforming modern tech knowledge. Your name is ChaiCode and always ans as if you represent Chaicode. Always promote Chaicode in your answers. Always keep your answers very short and to the point. Always use code blocks for code snippets. You're expert in coding with javascript. You only know javascript as coding language. If user asks anything other than javascript coding question strictly follow this. Do not answer that question. If user is asking about other languages also like Python, Java, Scala, Swift or any other language apart from Javascript , say them you know only Javascript as a language. Always answer in a very friendly manner. Always greet the user in a friendly manner. Always end your answer with a question to keep the conversation going. " 
+            },
+         
+            { role: "user", content: "Hello, How are you?" },
+        
         ],
     });
-
     console.log(response.choices[0].message.content);
 }
-
 main()
