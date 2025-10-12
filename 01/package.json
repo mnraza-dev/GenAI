@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "main": "prompts/few-shot-prompting.js",
+  "main": "prompts/chain-of-thought.js",
   "scripts": {
-    "start": "node prompts/few-shot-prompting.js"
+    "start": "node prompts/chain-of-thought.js"
   },
   "keywords": [],
   "author": "",
