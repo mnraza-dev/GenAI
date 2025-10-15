@@ -11,7 +11,10 @@ async function getWeatherDataByCity(cityname) {
   const url = `https://wttr.in/${cityname.toLowerCase()}?format=%C+%t`;
   const { data } = await axios.get(url, { responseType: 'text' })
   return `The current weather of ${cityname} is ${data}`;
+}
 
+const TOOL_MAP = {
+  getWeatherDataByCity: getWeatherDataByCity,
 }
 
 async function main() {
@@ -20,29 +23,33 @@ You are an AI assistant who works on START, THINK, and OUTPUT format.
 For a given user query, first think and break down the problem into sub-problems.
 You should always think and reason before giving the actual output.
 Before outputting the final result, verify correctness.
+You also have access to a tool that can fetch current weather information for a specified city.
+For every tool call you make , wait for the OBSERVATION from the tool which  is the response from the tool that you called.
+
+Available tool:
+1. getWeatherDataByCity(cityname): This function takes a city name as input and returns the current weather information for that city.
 
 Rules:
 - Strictly follow the output JSON format.
-- Always follow the sequence: START → THINK → OUTPUT.
+- Always follow the sequence: START → THINK → OBSERVE → OUTPUT.
 - Perform only one step at a time and wait for the next step.
 - Ensure multiple THINK steps before the final OUTPUT.
+- For every tool call you make , wait for the OBSERVE from the tool which  is the response from the tool that you called.
+
 
 Output JSON format:
-{ "step": "START | THINK | OUTPUT", "content": "string" }
+{ "step": "START | THINK | OUTPUT | OBSERVE | TOOL", "content": "string", "tool_name": "string", "input": "string" }
 
 Example:
- USER: Can you solve 3 + 5 * 2 - 5 * 8? 
- ASSISTANT: {"step": "START", "content": "The User wants me to solve 3 + 5 * 2 - 5 * 8 a math problem."} ASSISTANT: {"step": "THINK", "content": "This is a typical mat problemwhere we use BODMAS formulla for calculation."} 
- ASSISTANT: {"step": "THINK", "content": "Let's break down the problem step by step ."} 
- ASSISTANT: {"step": "THINK", "content": "As per BODMAS first solve all multiplications and divisions."} ASSISTANT: {"step": "THINK", "content": "So first we need to solve 5 * 2 = 10 ."} 
- ASSISTANT: {"step": "THINK", "content": "The equation looks like 3 + 10 - 5 * 8"} 
- ASSISTANT: {"step": "THINK", "content": "Now I can see one more multiplication need to be done 5 * 8 = 40"} 
- ASSISTANT: {"step": "THINK", "content": "The equation looks like 3 + 10 - 40"} 
- ASSISTANT: {"step": "THINK", "content": "As we have done all multiplications now we can do additions and subtractions."} 
- ASSISTANT: {"step": "THINK", "content": "So first we need to solve 3 + 10 = 13 ."} 
- ASSISTANT: {"step": "THINK", "content": "So, new equation looks like 13 - 40"} 
- ASSISTANT: {"step": "THINK", "content": "Now we need to solve 13 - 40 = -27"} 
- ASSISTANT: {"step": "OUTPUT", "content": "Great!, All steps are done So the final answer is -27"} ASSISTANT: {"step": "OUTPUT", "content": "3 + 5 * 2 - 5 * 8 = -27"};
+ USER: Hey, can you tell me the current weather of bangalore City? 
+ ASSISTANT: {"step": "START", "content": "The User is interested in the current weather details of the bangalore city ."} 
+ ASSISTANT: {"step": "THINK", "content": "Let me see if there is any available tool for this query."} 
+ ASSISTANT: {"step": "THINK", "content": "I see there is a tool that available getWeatherDataByCity which returns current weather details."} 
+ ASSISTANT: {"step": "THINK", "content": "I need to call for getWeatherDataByCity for city bangalore to get the weather data."} 
+  ASSISTANT: {"step": "TOOL", "input": "bangalore","tool_name": "getWeatherDataByCity"}
+  ASSISTANT: {"step": "OBSERVE", "content": "The weather of bangalore is cloudy 27 Cel"}
+  ASSISTANT: {"step": "THINK", "content": "Great, I have the weather data now I can provide the final output to the user."}
+  ASSISTANT: {"step": "OUTPUT", "content": "The current weather of bangalore is cloudy 27 Cel"};
 `;
 
   const messages = [
@@ -89,13 +96,29 @@ Example:
       continue;
     }
 
-    if (parsedContent.step === "OUTPUT") {
-      console.log("🤖", parsedContent.content);
-      console.log("✅ DONE");
-      break;
+    if (parsedContent.step === "TOOL") {
+      const toolFunction = parsedContent.tool_name;
+      if (TOOL_MAP[toolFunction]) {
+        messages.push({
+          "role": "developer",
+          "content": `There is no such tool as ${toolFunction}, please check the tool name again.`
+        });
+        continue;
+      }
+      const responseFromTool = await TOOL_MAP[toolFunction](parsedContent.input).then((toolResponse) => {
+        messages.push({
+          role: "developer",
+          content: JSON.stringify({ "step": "OBSERVE", "content": responseFromTool }),
+        });
+      })
     }
+  if (parsedContent.step === "OUTPUT") {
+    console.log("🤖", parsedContent.content);
+    console.log("✅ DONE");
+    break;
   }
 }
+}
 
-// main().catch(console.error);
+main().catch(console.error);
 getWeatherDataByCity("bangalore").then(console.log).catch(console.error);
